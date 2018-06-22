@@ -1,4 +1,4 @@
-package com.streaming.kafka
+package com.moviebooking.streaming
 
 import java.net.{Inet6Address, InetAddress, NetworkInterface}
 

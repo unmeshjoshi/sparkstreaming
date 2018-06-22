@@ -14,8 +14,9 @@ object Dependencies {
     SparkLibs.sparkHiveSQL,
     SparkLibs.sparkTestingBase % Test,
     SparkLibs.sparkStreamingKafka,
-    Kafka.`akka-stream-kafka`,
-    Kafka.`kafkaStreamsScala`,
+    SparkLibs.sparkStructuredStreamingKafka,
+//    Kafka.`akka-stream-kafka`,
+//    Kafka.`kafkaStreamsScala`,
     Kafka.`scalatest-embedded-kafka` % Test
   )
 }

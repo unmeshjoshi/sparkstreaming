@@ -74,7 +74,7 @@ object Kafka {
 }
 
 object SparkLibs {
-  val Version = "2.3.0"
+  val Version = "2.3.1"
   val sparkCore = "org.apache.spark" %% "spark-core" % Version
   val sparkStreaming = "org.apache.spark" %% "spark-streaming" % Version
   val sparkSQL = "org.apache.spark" %% "spark-sql" % Version
@@ -82,4 +82,5 @@ object SparkLibs {
   val sparkTestingBase = "com.holdenkarau" %% "spark-testing-base" % "2.2.0_0.8.0"
   //FIXME  val sparkRepl      = "org.apache.spark"  %% "spark-repl"      % Version
   val sparkStreamingKafka = "org.apache.spark" %% "spark-streaming-kafka-0-10" % Version
+  val sparkStructuredStreamingKafka = "org.apache.spark" %% "spark-sql-kafka-0-10" % Version
 }
