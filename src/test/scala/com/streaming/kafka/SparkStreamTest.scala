@@ -49,6 +49,8 @@ class SparkStreamTest extends FunSuite with BeforeAndAfterAll with Matchers with
       produceTestMessagesSync("memberTopic")
     }
 
+    Thread.sleep(1000)
+
 //    SparkDirectStreaming.processStream(bootstrapServers, "memberTopic")
     SparkStructuredStreaming.processStream(bootstrapServers, "memberTopic")
   }

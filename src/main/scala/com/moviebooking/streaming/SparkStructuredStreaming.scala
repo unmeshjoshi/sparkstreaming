@@ -1,6 +1,7 @@
 package com.moviebooking.streaming
 
 import org.apache.spark.SparkConf
+import org.apache.spark.sql.streaming.StreamingQuery
 import org.apache.spark.sql.{Dataset, SparkSession}
 
 object SparkStructuredStreaming {
@@ -22,11 +23,19 @@ object SparkStructuredStreaming {
       .option("kafka.bootstrap.servers", kafkaBootstrapServers)
       .option("subscribe", kafkaTopic)
       .load()
-    val value: Dataset[(String, String)] = df.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
-      .as[(String, String)]
-    value.rdd.foreach(rdd ⇒ {
-      println(s"key=value ${rdd._1} => ${rdd._2}")
+
+
+    import org.apache.spark.sql.ForeachWriter
+    val writer = new ForeachWriter[(String, String)] {
+      override def open(partitionId: Long, version: Long) = true
+      override def process(value: (String, String)) = println(s"key=>value ${value}")
+      override def close(errorOrNull: Throwable) = {}
     }
-    )
+
+
+    val dataSet: Dataset[(String, String)] = df.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
+      .as[(String, String)]
+    val query: StreamingQuery = dataSet.writeStream.foreach(writer).start()
+    query.awaitTermination()
   }
 }
