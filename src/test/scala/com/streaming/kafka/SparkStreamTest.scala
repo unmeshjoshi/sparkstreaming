@@ -2,7 +2,7 @@ package com.streaming.kafka
 
 import java.util.{Properties, UUID}
 
-import com.moviebooking.streaming.{Networks, SparkDirectStreaming, SparkStructuredStreaming}
+import com.financeapp.streaming.{Networks, SparkStructuredStreaming}
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord, RecordMetadata}
 import org.scalatest.concurrent.Eventually
@@ -58,6 +58,19 @@ class SparkStreamTest extends FunSuite with BeforeAndAfterAll with Matchers with
   private def produceTestMessagesSync(topic: String) = {
 
     val producer = createProducer
+
+    val position = "<position>" +
+      "<accountKey>10102022020</accountKey>" +
+      "<nomAmount>120000000</nomAmount>" +
+      "<accountType>SAVINGS</accountType>" +
+      "</position>"
+
+    val transaction = "<transaction>" +
+      "<accountKey>10102022020</accountKey>" +
+      "<txnAmount>10000</txnAmount>" +
+      "<txnType>CREDIT</txnType>" +
+      "<accountType>SAVINGS</accountType>" +
+      "</transaction>"
 
     for (i ← 0 to 10000) {
       val data = new ProducerRecord[String, String](topic, s"key${i % 2}", s"value ${i}")

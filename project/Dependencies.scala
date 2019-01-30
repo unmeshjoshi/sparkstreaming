@@ -8,6 +8,7 @@ object Dependencies {
     Libs.`junit-interface` % Test,
     Libs.`mockito-core` % Test,
     Libs.`scalatest` % Test,
+    Libs.`hsqldb`,
     SparkLibs.sparkCore,
     SparkLibs.sparkStreaming,
     SparkLibs.sparkSQL,

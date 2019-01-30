@@ -1,4 +1,4 @@
-package com.moviebooking.streaming
+package com.financeapp.streaming
 
 import java.net.{Inet6Address, InetAddress, NetworkInterface}
 
