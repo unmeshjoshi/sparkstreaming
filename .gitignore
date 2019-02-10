@@ -1,4 +1,5 @@
 checkpoint
+provisioning/archive
 *.log
 ignore
 .vagrant

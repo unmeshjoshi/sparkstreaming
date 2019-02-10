@@ -1,0 +1,20 @@
+<configuration>
+    <property>
+        <name>dfs.namenode.name.dir</name>
+        <value>/home/vagrant/data/nameNode</value>
+    </property>
+
+    <property>
+        <name>dfs.datanode.data.dir</name>
+        <value>/home/vagrant/data/dataNode</value>
+    </property>
+
+    <property>
+        <name>dfs.replication</name>
+        <value>1</value>
+    </property>
+    <property>
+        <name>dfs.namenode.http-address</name>
+        <value>0.0.0.0:50020</value>
+    </property>
+</configuration>
