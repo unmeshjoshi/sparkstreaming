@@ -1,8 +1,15 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
+$master = <<SCRIPT
+
+SCRIPT
+
+$nodes = <<SCRIPT
+
+SCRIPT
 
 $global = <<SCRIPT
-
+VAGRANT_HOME="/home/vagrant"
 PROVISIOING_DIR="/vagrant/provisioning"
 ARCHIVE_DIR="${PROVISIOING_DIR}/archive/"
 
@@ -45,8 +52,8 @@ function install {
 }
 
 function setupPasswordlessSSH() {
-  cp /vagrant/provisioning/ssh/id_rsa /home/vagrant/.ssh/id_rsa
-  chmod 0600 /home/vagrant/.ssh/id_rsa
+  cp /vagrant/provisioning/ssh/id_rsa ${VAGRANT_HOME}/.ssh/id_rsa
+  chmod 0600 ${VAGRANT_HOME}/.ssh/id_rsa
   #allow ssh passwordless
   cat /vagrant/provisioning/ssh/id_rsa.pub >> ~/.ssh/authorized_keys
   chmod 0600 ~/.ssh/authorized_keys
@@ -86,11 +93,32 @@ echo "copying configuration files"
 cp -f ${PROVISIOING_DIR}/hadoop/*.xml ./hadoop/etc/hadoop/
 cp -f ${PROVISIOING_DIR}/hadoop/slaves ./hadoop/etc/hadoop/
 
-sed -i "s@\${JAVA_HOME}@/home/vagrant/jdk@g" /home/vagrant/hadoop/etc/hadoop/hadoop-env.sh
+echo "Replacing JAVA_HOME in hadoop-env.sh"
+#FIXME in sed command, can not use $VAGRANT_HOME, as we do not want variable interpolation, else JAVA_HOME matching breaks 
+sed -i 's@\${JAVA_HOME}@/home/vagrant/jdk@g' ${VAGRANT_HOME}/hadoop/etc/hadoop/hadoop-env.sh
 
-echo "export JAVA_HOME=/home/vagrant/jdk" > /home/vagrant/.bashrc
-echo "export PATH=$JAVA_HOME/bin:/home/vagrant/hadoop/bin:/home/vagrant/hadoop/sbin:$PATH" > /home/vagrant/.bashrc
-source /home/vagrant/.bashrc
+install "spark-2.3.2-bin-hadoop2.6.tgz" "https://archive.apache.org/dist/spark/spark-2.3.2/spark-2.3.2-bin-hadoop2.6.tgz"
+rm -rf spark
+mv -f spark-2.3.2-bin-hadoop2.6 spark
+
+echo "Setting spark configurations"
+SPARK_HOME=${VAGRANT_HOME}/spark
+cp "${SPARK_HOME}/conf/spark-defaults.conf.template" ${SPARK_HOME}/conf/spark-defaults.conf 
+echo "spark.master    yarn" >> ${SPARK_HOME}/conf/spark-defaults.conf
+echo "spark.driver.memory    512m" >> ${SPARK_HOME}/conf/spark-defaults.conf
+echo "spark.yarn.am.memory    512m" >> ${SPARK_HOME}/conf/spark-defaults.conf
+echo "spark.executor.memory   512m" >> ${SPARK_HOME}/conf/spark-defaults.conf
+echo "spark.eventLog.enabled  true" >> ${SPARK_HOME}/conf/spark-defaults.conf
+echo "spark.eventLog.dir hdfs://namenode:9000/spark-logs" >> ${SPARK_HOME}/conf/spark-defaults.conf
+echo "export SPARK_HOME=${VAGRANT_HOME}/spark" >> ${VAGRANT_HOME}/.bashrc
+
+echo "export JAVA_HOME=${VAGRANT_HOME}/jdk" > ${VAGRANT_HOME}/.bashrc
+echo "export PATH=$JAVA_HOME/bin:${VAGRANT_HOME}/spark/bin:${VAGRANT_HOME}/hadoop/bin:${VAGRANT_HOME}/hadoop/sbin:$PATH" >> ${VAGRANT_HOME}/.bashrc
+echo "export HADOOP_CONF_DIR=${VAGRANT_HOME}/hadoop/etc/hadoop" >> ${VAGRANT_HOME}/.bashrc
+echo "export LD_LIBRARY_PATH=${VAGRANT_HOME}/hadoop/lib/native:$LD_LIBRARY_PATH" >> ${VAGRANT_HOME}/.bashrc
+echo "export SPARK_HOME=${VAGRANT_HOME}/spark" >> ${VAGRANT_HOME}/.bashrc
+
+source ${VAGRANT_HOME}/.bashrc
 
 #PATH=/home/hadoop/hadoop/bin:/home/hadoop/hadoop/sbin:$PATH
 #update hadoop-env.sh to include $JAVA_HOME
@@ -99,13 +127,13 @@ source /home/vagrant/.bashrc
 
 SCRIPT
 
-#PATH=/home/vagrant/hadoop/bin:/home/vagrant/hadoop/sbin:$PATH
-# export JAVA_HOME=/home/vagrant/jdk
-# export PATH=$JAVA_HOME/bin:/home/vagrant/hadoop/bin:/home/vagrant/hadoop/sbin:$PATH
+#PATH=${VAGRANT_HOME}/hadoop/bin:${VAGRANT_HOME}/hadoop/sbin:$PATH
+# export JAVA_HOME=${VAGRANT_HOME}/jdk
+# export PATH=$JAVA_HOME/bin:${VAGRANT_HOME}/hadoop/bin:${VAGRANT_HOME}/hadoop/sbin:$PATH
 # export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
-# cat /home/vagrant/hadoop/etc/hadoop/hadoop-env.sh | sed -e "s@\${JAVA_HOME}@/home/vagrant/java" > /home/vagrant/hadoop/etc/hadoop/hadoop-env-temp.sh
-# cp -f /home/vagrant/hadoop/etc/hadoop/hadoop-env-temp.sh /home/vagrant/hadoop/etc/hadoop/hadoop-env.sh
-# rm /home/vagrant/hadoop/etc/hadoop/hadoop-env-temp.sh
+# cat ${VAGRANT_HOME}/hadoop/etc/hadoop/hadoop-env.sh | sed -e "s@\${JAVA_HOME}@${VAGRANT_HOME}/java" > ${VAGRANT_HOME}/hadoop/etc/hadoop/hadoop-env-temp.sh
+# cp -f ${VAGRANT_HOME}/hadoop/etc/hadoop/hadoop-env-temp.sh ${VAGRANT_HOME}/hadoop/etc/hadoop/hadoop-env.sh
+# rm ${VAGRANT_HOME}/hadoop/etc/hadoop/hadoop-env-temp.sh
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
 # backwards compatibility). Please don't change it unless you know what
