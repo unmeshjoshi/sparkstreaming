@@ -78,40 +78,69 @@ function installJava() {
   mv -f jdk1.8.0_201 jdk
 }
 
+function installHDFS() {
+
+  install "hadoop-2.6.0.tar.gz" "http://archive.apache.org/dist/hadoop/core/hadoop-2.6.0/hadoop-2.6.0.tar.gz"
+  
+  echo "moving hadoop-2.6.0 to hadoop"
+  rm -rf hadoop
+  mv -f hadoop-2.6.0 hadoop
+  
+  echo "copying configuration files"
+  cp -f ${PROVISIOING_DIR}/hadoop/*.xml ./hadoop/etc/hadoop/
+  cp -f ${PROVISIOING_DIR}/hadoop/slaves ./hadoop/etc/hadoop/
+  
+  echo "Replacing JAVA_HOME in hadoop-env.sh"
+  #FIXME in sed command, can not use $VAGRANT_HOME, as we do not want variable interpolation, else JAVA_HOME matching breaks 
+  sed -i 's@\${JAVA_HOME}@/home/vagrant/jdk@g' ${VAGRANT_HOME}/hadoop/etc/hadoop/hadoop-env.sh
+}
+
+function installSpark() {
+  install "spark-2.3.2-bin-hadoop2.6.tgz" "https://archive.apache.org/dist/spark/spark-2.3.2/spark-2.3.2-bin-hadoop2.6.tgz"
+  rm -rf spark
+  mv -f spark-2.3.2-bin-hadoop2.6 spark
+
+  echo "Setting spark configurations"
+  SPARK_HOME=${VAGRANT_HOME}/spark
+  cp "${SPARK_HOME}/conf/spark-defaults.conf.template" ${SPARK_HOME}/conf/spark-defaults.conf 
+  echo "spark.master    yarn" >> ${SPARK_HOME}/conf/spark-defaults.conf
+  echo "spark.driver.memory    512m" >> ${SPARK_HOME}/conf/spark-defaults.conf
+  echo "spark.yarn.am.memory    512m" >> ${SPARK_HOME}/conf/spark-defaults.conf
+  echo "spark.executor.memory   512m" >> ${SPARK_HOME}/conf/spark-defaults.conf
+  echo "spark.eventLog.enabled  true" >> ${SPARK_HOME}/conf/spark-defaults.conf
+  echo "spark.eventLog.dir hdfs://namenode:9000/spark-logs" >> ${SPARK_HOME}/conf/spark-defaults.conf
+}
+
+function installHBase() {
+  install "hbase-1.2.0-bin.tar.gz" "http://archive.apache.org/dist/hbase/1.2.0/hbase-1.2.0-bin.tar.gz"
+  rm -rf hbase
+  mv -f hbase-1.2.0 hbase
+
+  cp -f ${PROVISIOING_DIR}/hbase/*.xml ./hbase/conf/
+  cp -f ${PROVISIOING_DIR}/hbase/regionservers ./hbase/conf/
+
+  echo "export JAVA_HOME=${VAGRANT_HOME}/jdk" >> ./hbase/conf/hbase-env.sh
+  echo "export HBASE_MANAGES_ZK=false" >> ./hbase/conf/hbase-env.sh
+}
+
+function installZooKeeper() {
+  install "zookeeper-3.4.12.tar.gz" "https://archive.apache.org/dist/zookeeper/stable/zookeeper-3.4.12.tar.gz"
+  rm -rf zookeeper
+  mv zookeeper-3.4.12 zookeeper
+  cp -f ${PROVISIOING_DIR}/zookeeper/zoo.cfg ./zookeeper/conf
+}
+
 setupPasswordlessSSH
 setupHostsFile
 
 installJava
+installHDFS
+installSpark
+installHBase
+installZooKeeper
 
-install "hadoop-2.6.0.tar.gz" "http://archive.apache.org/dist/hadoop/core/hadoop-2.6.0/hadoop-2.6.0.tar.gz"
 
-echo "moving hadoop-2.6.0 to hadoop"
-rm -rf hadoop
-mv -f hadoop-2.6.0 hadoop
-
-echo "copying configuration files"
-cp -f ${PROVISIOING_DIR}/hadoop/*.xml ./hadoop/etc/hadoop/
-cp -f ${PROVISIOING_DIR}/hadoop/slaves ./hadoop/etc/hadoop/
-
-echo "Replacing JAVA_HOME in hadoop-env.sh"
-#FIXME in sed command, can not use $VAGRANT_HOME, as we do not want variable interpolation, else JAVA_HOME matching breaks 
-sed -i 's@\${JAVA_HOME}@/home/vagrant/jdk@g' ${VAGRANT_HOME}/hadoop/etc/hadoop/hadoop-env.sh
-
-install "spark-2.3.2-bin-hadoop2.6.tgz" "https://archive.apache.org/dist/spark/spark-2.3.2/spark-2.3.2-bin-hadoop2.6.tgz"
-rm -rf spark
-mv -f spark-2.3.2-bin-hadoop2.6 spark
-
-echo "Setting spark configurations"
-SPARK_HOME=${VAGRANT_HOME}/spark
-cp "${SPARK_HOME}/conf/spark-defaults.conf.template" ${SPARK_HOME}/conf/spark-defaults.conf 
-echo "spark.master    yarn" >> ${SPARK_HOME}/conf/spark-defaults.conf
-echo "spark.driver.memory    512m" >> ${SPARK_HOME}/conf/spark-defaults.conf
-echo "spark.yarn.am.memory    512m" >> ${SPARK_HOME}/conf/spark-defaults.conf
-echo "spark.executor.memory   512m" >> ${SPARK_HOME}/conf/spark-defaults.conf
-echo "spark.eventLog.enabled  true" >> ${SPARK_HOME}/conf/spark-defaults.conf
-echo "spark.eventLog.dir hdfs://namenode:9000/spark-logs" >> ${SPARK_HOME}/conf/spark-defaults.conf
 echo "export SPARK_HOME=${VAGRANT_HOME}/spark" >> ${VAGRANT_HOME}/.bashrc
-
 echo "export JAVA_HOME=${VAGRANT_HOME}/jdk" > ${VAGRANT_HOME}/.bashrc
 echo "export PATH=$JAVA_HOME/bin:${VAGRANT_HOME}/spark/bin:${VAGRANT_HOME}/hadoop/bin:${VAGRANT_HOME}/hadoop/sbin:$PATH" >> ${VAGRANT_HOME}/.bashrc
 echo "export HADOOP_CONF_DIR=${VAGRANT_HOME}/hadoop/etc/hadoop" >> ${VAGRANT_HOME}/.bashrc
