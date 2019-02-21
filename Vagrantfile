@@ -130,6 +130,21 @@ function installZooKeeper() {
   cp -f ${PROVISIOING_DIR}/zookeeper/zoo.cfg ./zookeeper/conf
 }
 
+function setupEnvVariables() {
+  echo "export SPARK_HOME=${VAGRANT_HOME}/spark" >> ${VAGRANT_HOME}/.bashrc
+  echo "export JAVA_HOME=${VAGRANT_HOME}/jdk" > ${VAGRANT_HOME}/.bashrc
+  echo "export HADOOP_HOME=${VAGRANT_HOME}/hadoop" > ${VAGRANT_HOME}/.bashrc
+  echo "export ZOOKEEPER_HOME=${VAGRANT_HOME}/zookeeper" > ${VAGRANT_HOME}/.bashrc
+  echo "export HBASE_HOME=${VAGRANT_HOME}/hbase" > ${VAGRANT_HOME}/.bashrc
+  echo "export PATH=$JAVA_HOME/bin:$SPARK_HOME/bin:$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$HBASE_HOME/bin:$ZOOKEEPER_HOME/bin:$PATH" >> ${VAGRANT_HOME}/.bashrc
+  echo "export HADOOP_CONF_DIR=${VAGRANT_HOME}/hadoop/etc/hadoop" >> ${VAGRANT_HOME}/.bashrc
+  echo "export LD_LIBRARY_PATH=${VAGRANT_HOME}/hadoop/lib/native:$LD_LIBRARY_PATH" >> ${VAGRANT_HOME}/.bashrc
+}
+
+function sourceBashrc() {
+  source ${VAGRANT_HOME}/.bashrc
+}
+
 setupPasswordlessSSH
 setupHostsFile
 
@@ -139,20 +154,8 @@ installSpark
 installHBase
 installZooKeeper
 
-
-echo "export SPARK_HOME=${VAGRANT_HOME}/spark" >> ${VAGRANT_HOME}/.bashrc
-echo "export JAVA_HOME=${VAGRANT_HOME}/jdk" > ${VAGRANT_HOME}/.bashrc
-echo "export PATH=$JAVA_HOME/bin:${VAGRANT_HOME}/spark/bin:${VAGRANT_HOME}/hadoop/bin:${VAGRANT_HOME}/hadoop/sbin:$PATH" >> ${VAGRANT_HOME}/.bashrc
-echo "export HADOOP_CONF_DIR=${VAGRANT_HOME}/hadoop/etc/hadoop" >> ${VAGRANT_HOME}/.bashrc
-echo "export LD_LIBRARY_PATH=${VAGRANT_HOME}/hadoop/lib/native:$LD_LIBRARY_PATH" >> ${VAGRANT_HOME}/.bashrc
-echo "export SPARK_HOME=${VAGRANT_HOME}/spark" >> ${VAGRANT_HOME}/.bashrc
-
-source ${VAGRANT_HOME}/.bashrc
-
-#PATH=/home/hadoop/hadoop/bin:/home/hadoop/hadoop/sbin:$PATH
-#update hadoop-env.sh to include $JAVA_HOME
-#end script
-
+setupEnvVariables
+sourceBashrc
 
 SCRIPT
 
