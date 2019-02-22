@@ -26,6 +26,7 @@ object Libs {
   val `scalapb-runtime` = "com.trueaccord.scalapb" %% "scalapb-runtime" % scalapbVersion % "protobuf"
   val `scalapb-json4s` = "com.trueaccord.scalapb" %% "scalapb-json4s" % "0.3.3"
   val `hsqldb` = "org.hsqldb" % "hsqldb" % "2.4.1"
+  val `postgres` = "org.postgresql" % "postgresql" % "42.2.5"
 }
 
 object Jackson {
@@ -75,7 +76,7 @@ object Kafka {
 }
 
 object SparkLibs {
-  val Version = "2.3.1"
+  val Version = "2.3.2"
   val sparkCore = "org.apache.spark" %% "spark-core" % Version
   val sparkStreaming = "org.apache.spark" %% "spark-streaming" % Version
   val sparkSQL = "org.apache.spark" %% "spark-sql" % Version
@@ -88,9 +89,9 @@ object SparkLibs {
 
 
 object HBase {
-  val Version = "2.0.0"
-  val hadoopCommon = "org.apache.hadoop" % "hadoop-common" % "2.7.2"
-  val hadoopHdfs = "org.apache.hadoop" % "hadoop-hdfs" % "2.7.2"
+  val Version = "1.2.0"
+  val hadoopCommon = "org.apache.hadoop" % "hadoop-common" % "2.6.0"
+  val hadoopHdfs = "org.apache.hadoop" % "hadoop-hdfs" % "2.6.0"
   val hbase = "org.apache.hbase" % "hbase" % Version
   val hbaseClient = "org.apache.hbase" % "hbase-client" % Version
   val hbaseTestingUtil = "org.apache.hbase" % "hbase-testing-util" % Version classifier "test"

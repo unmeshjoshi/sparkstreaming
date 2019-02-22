@@ -12,5 +12,6 @@ This also includes vagrant setup with hdfs, hbase, zookeeper and spark.
 * hbase start
 * To test run following
 ```spark-submit --deploy-mode client --class org.apache.spark.examples.SparkPi /home/vagrant/spark/examples/jars/spark-examples_2.11-2.3.2.jar 10```
-
+* Starting postgres container
+```docker run --name postgres1 -e POSTGRES_PASSWORD=password -d postgres```
 
