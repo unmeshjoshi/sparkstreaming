@@ -1,9 +1,10 @@
 checkpoint
-provisioning/archive
 *.log
 ignore
 .vagrant
 logs
+provisioning/archive/*
+!provisioning/archive/.gitkeep
 project/project/target
 project/target
 target
